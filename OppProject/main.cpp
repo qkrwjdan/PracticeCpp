@@ -24,6 +24,15 @@ public:
         strcpy(this->name,name);
     }
 
+    Account(const Account & copy) : ID(copy.ID),Money(copy.Money){
+        name = new char[strlen(copy.name) + 1];
+        strcpy(name,copy.name);
+    }
+
+    ~Account(){
+        delete []name;
+    }
+
     int GetID(){
         return this->ID;
     }
