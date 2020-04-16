@@ -3,22 +3,61 @@
 
 using namespace std;
 const int NAME_LEN = 20;
+const int ARR_LEN = 100;
 
 
-typedef struct _Account{
-    char name[NAME_LEN];
-    int ID;
-    int Money;
-}Account;
 
 void MakeAccount();
 void ShowMenu();
-void Input();
+void Withdraw();
 void Deposit();
 void searchAll();
 
+class Account{
+private:
+    char * name;
+    int ID;
+    int Money;
+public:
+    Account(char * name,int ID,int money):ID(ID),Money(money){
+        this->name = new char[strlen(name) + 1];
+        strcpy(this->name,name);
+    }
 
-Account accArr[100];
+    int GetID(){
+        return this->ID;
+    }
+
+    void Deposit(int money){
+        this->Money += money;
+    }
+
+    int Withdraw(int money){
+        if(money > this->Money){
+            return 0;
+        }
+        this->Money -= money;
+        return money;
+    }
+
+    void ShowAccInfo(){
+        cout<<"ID : "<<ID<<endl;
+        cout<<"name : "<<name<<endl;
+        cout<<"money : "<<Money<<endl;
+    }
+
+    ~Account(){
+        delete []name;
+    }
+};
+
+//typedef struct _Account{
+//    char name[NAME_LEN];
+//    int ID;
+//    int Money;
+//}Account;
+
+Account * accArr[ARR_LEN];
 int accNum = 0;
 
 int main() {
@@ -26,7 +65,6 @@ int main() {
 
     while(1){
         ShowMenu();
-
         cout << "원하시는 메뉴를 선택하세요";
         cin >> inputNum;
         cout << endl;
@@ -35,10 +73,10 @@ int main() {
                 MakeAccount();
                 break;
             case 2:
-                Input();
+                Deposit();
                 break;
             case 3:
-                Deposit();
+                Withdraw();
                 break;
             case 4:
                 searchAll();
@@ -56,15 +94,16 @@ int main() {
 void MakeAccount(){
     char name[NAME_LEN];
     int accNumber;
+    int money;
 
     cout << "이름을 입력하세요 : ";
     cin >> name;
     cout << "계좌번호를 입력하세요 : ";
     cin >> accNumber;
+    cout<<"입금하실 금액을 입력하세요 : ";
+    cin >> money;
 
-    strcpy(accArr[accNum].name,name);
-    accArr[accNum].ID = accNumber;
-    accArr[accNum].Money = 0;
+    accArr[accNum] = new Account(name,accNumber,money);
 
     accNum += 1;
 
@@ -82,36 +121,47 @@ void ShowMenu(){
     cout << "---------------------------"<<endl;
 }
 
-void Input(){
-    cout << "입금하실 계좌의 인덱스를 입력하세요." << endl;
-    int idx;
-    cin >> idx;
+void Deposit(){
+    cout << "입금하실 계좌의 계좌번호를 입력하세요." << endl;
+    int ID;
+    cin >> ID;
     cout << "입금하실 금액을 입력하세요." << endl;
     int money;
     cin >> money;
 
-    accArr[idx].Money += money;
-    cout << "입금이 완료되었습니다." << endl;
+    for(int i=0;i<accNum;i++){
+        if(accArr[i]->GetID() == ID){
+            accArr[i]->Deposit(money);
+            cout<<"입금이 완료되었습니다."<<endl;
+            return;
+        }
+    }
+    cout<<"유효하지 않은 ID입니다."<<endl<<endl;
 
 }
 
-void Deposit(){
-    cout << "출금하실 계좌의 인덱스를 입력하세요." << endl;
-    int idx;
-    cin >> idx;
+void Withdraw(){
+    cout << "출금하실 계좌의 계좌번호를 입력하세요." << endl;
+    int ID;
+    cin >> ID;
     cout << "출금하실 금액을 입력하세요." << endl;
     int money;
     cin >> money;
 
-    accArr[idx].Money -= money;
-    cout << "출금이 완료되었습니다." << endl;
+    for(int i=0;i<accNum;i++){
+        if(accArr[i]->GetID() == ID){
+            accArr[i]->Withdraw(money);
+            cout<<"출금이 완료되었습니다."<<endl;
+            return;
+        }
+    }
 
+    cout<<"유효하지 않은 ID입니다."<<endl<<endl;
 }
 
 void searchAll(){
     for(int i=0;i<accNum; i++){
-        cout << "이름 : " << accArr[i].name << endl;
-        cout << "계좌번호 : " << accArr[i].ID << endl;
-        cout << "잔액 : " << accArr[i].Money << endl;
+        accArr[i]->ShowAccInfo();
     }
 }
+
