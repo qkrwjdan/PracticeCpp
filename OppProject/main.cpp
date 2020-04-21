@@ -29,11 +29,7 @@ public:
         strcpy(name,copy.name);
     }
 
-    ~Account(){
-        delete []name;
-    }
-
-    int GetID(){
+    int GetID() const{
         return this->ID;
     }
 
@@ -49,7 +45,7 @@ public:
         return money;
     }
 
-    void ShowAccInfo(){
+    void ShowAccInfo() const{
         cout<<"ID : "<<ID<<endl;
         cout<<"name : "<<name<<endl;
         cout<<"money : "<<Money<<endl;
@@ -58,6 +54,7 @@ public:
     ~Account(){
         delete []name;
     }
+
 };
 
 //typedef struct _Account{
