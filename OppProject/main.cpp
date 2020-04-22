@@ -5,6 +5,12 @@ using namespace std;
 const int NAME_LEN = 20;
 const int ARR_LEN = 100;
 
+namespace AccountRank{
+    enum {
+        A=1,B=2,C=3
+    };
+}
+
 class Account{
 private:
     char * name;
@@ -25,8 +31,16 @@ public:
         return this->ID;
     }
 
-    void Deposit(int money){
+    virtual void Deposit(int money){
         this->Money += money;
+    }
+
+    int GetMoney(){
+        return Money;
+    }
+
+    void SetMoney(int money){
+        this->Money = money;
     }
 
     int Withdraw(int money){
@@ -37,7 +51,7 @@ public:
         return money;
     }
 
-    void ShowAccInfo() const{
+    virtual void ShowAccInfo() const{
         cout<<"ID : "<<ID<<endl;
         cout<<"name : "<<name<<endl;
         cout<<"money : "<<Money<<endl;
@@ -47,6 +61,64 @@ public:
         delete []name;
     }
 
+};
+
+class NormalAccount : public Account{
+    /*
+     * 생성자를 통해서 이자비율을 등록
+     */
+private:
+    int ratio;
+public:
+    NormalAccount(char * name,int ID,int money,int ratio) : Account(name,ID,money),ratio(ratio){ }
+
+    virtual void Deposit(int money){
+        int total = GetMoney() + money;
+        SetMoney(total * (100+ratio) / 100);
+    }
+
+    virtual void ShowAccInfo() const{
+        Account::ShowAccInfo();
+        cout<<"ratio : "<<ratio<<endl;
+    }
+
+};
+
+class HighCreditAccount : public Account{
+    /*
+     *
+     * 생성 과정에서 고객의 신용등급을 A,B,C로 나누고
+     * A -> 7%, B -> 4%, C -> 2%
+     * 개좌 개설 과정에서 초기 입금액에 대해서는 이자를 계산하지 않는다.
+     * 계좌 개설 ㅣ후 별도의 입금과정을 거칠때만 이자가 발생한다.
+     * 이자 계산과정에서 발생하는 소수점 이하의 금액은 무시한다.
+     */
+private:
+    int rank;
+    int ratio;
+public:
+    HighCreditAccount(char * name,int ID,int money,int ratio, int rank) : Account(name,ID,money){
+        this->ratio = ratio;
+        this->rank = rank;
+
+        if(rank == AccountRank::A)
+            ratio += 7;
+        else if(rank == AccountRank::B)
+            ratio += 4;
+        else if(rank == AccountRank::C)
+            ratio += 2;
+    }
+
+    virtual void Deposit(int money){
+        int total = GetMoney() + money;
+        SetMoney(total * (100+ratio) / 100);
+    }
+
+    virtual void ShowAccInfo() const{
+        Account::ShowAccInfo();
+        cout<<"rank : "<<rank<<endl;
+        cout<<"ratio : "<<ratio<<endl;
+    }
 };
 
 class AccountHandler{
@@ -62,6 +134,18 @@ public:
         char name[NAME_LEN];
         int accNumber;
         int money;
+        int choice;
+        int ratio;
+
+        cout<<"[계좌 종류 선택]"<<endl;
+        cout<<"1.보통 예금계좌 2.신용신뢰계좌"<<endl;
+        cout<<"선택";
+        cin>>choice;
+
+        if(choice == 1)
+            cout<<"[보통 예금계좌 개설]"<<endl;
+        else if(choice == 2)
+            cout<<"[신용 신뢰계좌 개설]"<<endl;
 
         cout << "이름을 입력하세요 : ";
         cin >> name;
@@ -69,8 +153,18 @@ public:
         cin >> accNumber;
         cout<<"입금하실 금액을 입력하세요 : ";
         cin >> money;
+        cout<<"이자율 : ";
+        cin>>ratio;
 
-        accArr[accNum] = new Account(name,accNumber,money);
+        if(choice == 1){
+            accArr[accNum] = new NormalAccount(name,accNumber,money,ratio);
+        }
+        else if(choice == 2){
+            int rank;
+            cout<<"신용등급 : (1toA,2toB,3toC) ";
+            cin>>rank;
+            accArr[accNum] = new HighCreditAccount(name,accNumber,money,ratio,rank);
+        }
 
         accNum += 1;
 
