@@ -102,11 +102,11 @@ public:
         this->rank = rank;
 
         if(rank == AccountRank::A)
-            ratio += 7;
+            this->ratio += 7;
         else if(rank == AccountRank::B)
-            ratio += 4;
+            this->ratio += 4;
         else if(rank == AccountRank::C)
-            ratio += 2;
+            this->ratio += 2;
     }
 
     virtual void Deposit(int money){
