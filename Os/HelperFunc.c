@@ -8,6 +8,7 @@ char * splitString(char const * stringToSplit,char splitChar) {
      *
      * while(List[i][0] != '\0'){
      *     printf("%s\n",List[i]);
+     *     i++;
      * }
      *
      * 이런식으로 사용한다.

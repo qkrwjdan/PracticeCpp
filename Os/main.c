@@ -4,6 +4,7 @@
 
 #include "object.h"
 #include "CLinkedList.h"
+#include "HelperFunc.h"
 
 #define MAX_ARGV 256
 #define MAX_CMD 64
@@ -142,6 +143,29 @@ int pwd(List * pathList){
     printf("\n");
     return 1;
 }
+int cdOne(List * pathList, char * name){
+    int childNum = now_folder->children;
+
+    for(int i=0;i<childNum;i++){
+
+        Folder * tmp = (Folder *)(now_folder->ptr_array[i]);
+
+        if(strcmp(tmp->name,name) == 0){
+
+            if(tmp->type == 'd') {
+                LInsert(pathList,tmp);
+                now_folder = pathList->tail->data;
+                return 1;
+            }else{
+                printf("It is file\n");
+                return 0;
+            }
+        }
+    }
+
+    printf("here is no such file\n");
+    return 0;
+}
 
 int cd(List * pathList, char * name){
 
@@ -157,7 +181,7 @@ int cd(List * pathList, char * name){
     }
     else if(strcmp(name,"~") == 0 || strcmp(name,"$ HOME") == 0 || strcmp(name,"") == 0 ){ // 사용자 Home directory로 이동
         if(now_folder == root){
-            cd(pathList,"User");
+            cdOne(pathList,"User");
         }
 
         while(pathList->before->data != root){
@@ -180,38 +204,26 @@ int cd(List * pathList, char * name){
     else{
 
         int index = 0;
+        char (*List)[10] = (char(*)[10])splitString(name,'/');
 
-        if(name[index] == '/'){ // 절대경로인 경우
-
-            
-
+        if(name[index] == '/') { // 절대경로인 경우
+            cd(pathList, "/");
         }
 
+        int i=0;
 
-
-
-
-        int childNum = now_folder->children;
-
-        for(int i=0;i<childNum;i++){
-
-            Folder * tmp = (Folder *)(now_folder->ptr_array[i]);
-
-            if(strcmp(tmp->name,name) == 0){
-
-                if(tmp->type == 'd') {
-                    LInsert(pathList,tmp);
-                    now_folder = pathList->tail->data;
-                    return 1;
-                }else{
-                    printf("It is file\n");
-                    return 0;
-                }
-            }
+        while(List[i][0] != '\0'){
+            cdOne(pathList,List[i]);
+            i++;
         }
 
-        printf("here is no such file\n");
-        return 0;
+        i=0;
+        while(List[i][0] != '\0'){
+            List[i][0] = '\0';
+            i++;
+        }
+
+        return 1;
+
     }
-
 }
